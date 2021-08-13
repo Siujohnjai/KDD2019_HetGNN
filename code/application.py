@@ -31,7 +31,7 @@ print(args)
 
 def a_a_collab_feature_setting():
 	a_embed = np.around(np.random.normal(0, 0.01, [args.A_n, args.embed_d]), 4)
-	embed_f = open(args.data_path + "node_embedding.txt", "r")
+	embed_f = open(args.data_path + "node_embedding2.txt", "r")
 	for line in islice(embed_f, 0, None):
 		line = line.strip()
 		node_id = re.split(' ', line)[0]
@@ -88,7 +88,7 @@ def a_a_collab_feature_setting():
 def a_p_cite_feature_setting():
 	a_embed = np.around(np.random.normal(0, 0.01, [args.A_n, args.embed_d]), 4)
 	p_embed = np.around(np.random.normal(0, 0.01, [args.P_n, args.embed_d]), 4)
-	embed_f = open(args.data_path + "node_embedding.txt", "r")
+	embed_f = open(args.data_path + "node_embedding2.txt", "r")
 	for line in islice(embed_f, 0, None):
 		line = line.strip()
 		node_id = re.split(' ', line)[0]
@@ -147,7 +147,7 @@ def a_p_cite_feature_setting():
 def a_v_recommendation():
 	a_embed = np.around(np.random.normal(0, 0.01, [args.A_n, args.embed_d]), 4)
 	v_embed = np.around(np.random.normal(0, 0.01, [args.V_n, args.embed_d]), 4)
-	embed_f = open(args.data_path + "node_embedding.txt", "r")
+	embed_f = open(args.data_path + "node_embedding2.txt", "r")
 	for line in islice(embed_f, 0, None):
 		line = line.strip()
 		node_id = re.split(' ', line)[0]
@@ -246,7 +246,7 @@ def a_v_recommendation():
 
 def a_class_cluster_feature_setting():
 	a_embed = np.around(np.random.normal(0, 0.01, [args.A_n, args.embed_d]), 4)
-	embed_f = open(args.data_path + "node_embedding.txt", "r")
+	embed_f = open(args.data_path + "node_embedding2.txt", "r")
 	for line in islice(embed_f, 0, None):
 		line = line.strip()
 		node_id = re.split(' ', line)[0]
@@ -372,28 +372,28 @@ def a_class_cluster_feature_setting():
 
 
 
-# print("------author collaboration link prediction------")
-# train_num, test_num = a_a_collab_feature_setting() #setup of author-author collaboration prediction task
-# LP.model(train_num, test_num)
-# print("------author collaboration link prediction end------")
+print("------author collaboration link prediction------")
+train_num, test_num = a_a_collab_feature_setting() #setup of author-author collaboration prediction task
+LP.model(train_num, test_num)
+print("------author collaboration link prediction end------")
 
 
-# print("------author paper citation link prediction------")
-# train_num, test_num = a_p_cite_feature_setting() #setup of author-paper citation prediction task
-# LP.model(train_num, test_num)
-# print("------author paper citation link prediction end------")
+print("------author paper citation link prediction------")
+train_num, test_num = a_p_cite_feature_setting() #setup of author-paper citation prediction task
+LP.model(train_num, test_num)
+print("------author paper citation link prediction end------")
 
 
-# print("------venue recommendation------")
-# a_v_recommendation()
-# print("------venue recommendation end------")
+print("------venue recommendation------")
+a_v_recommendation()
+print("------venue recommendation end------")
 
 
-# print("------author classification/clustering------")
-# train_num, test_num, cluster_id = a_class_cluster_feature_setting() #setup of author classification/clustering task
-# NC.model(train_num, test_num)
-# NCL.model(cluster_id)
-# print("------author classification/clustering end------")
+print("------author classification/clustering------")
+train_num, test_num, cluster_id = a_class_cluster_feature_setting() #setup of author classification/clustering task
+NC.model(train_num, test_num)
+NCL.model(cluster_id)
+print("------author classification/clustering end------")
 
 
 

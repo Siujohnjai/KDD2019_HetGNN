@@ -454,6 +454,8 @@ class input_data(object):
 
 	def sample_het_walk_triple(self):
 		print ("sampling triple relations ...")
+		import time 
+		start = time.time()
 		triple_list = [[] for k in range(9)]
 		window = self.args.window
 		walk_L = self.args.walk_L
@@ -543,6 +545,8 @@ class input_data(object):
 									triple_list[8].append(triple)
 		het_walk_f.close()
 
+		end = time.time()
+		print("time used by random walk sampling:", end -start)
 		return triple_list
 
 

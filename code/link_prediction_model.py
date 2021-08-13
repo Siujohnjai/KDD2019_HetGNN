@@ -38,33 +38,33 @@ def load_data(data_file_name, n_features, n_samples):
 
 def model(train_num, test_num):
 	#train_data_f = args.data_path + "a_a_list_train_feature.txt"
-	train_data_f = args.data_path + "train_feature.txt"
-	train_data = load_data(train_data_f, args.embed_d + 3, train_num)
+	train_data_f = "train_feature.txt"
+	train_data = load_data(args.data_path + train_data_f, args.embed_d + 3, train_num)
 	train_features = train_data.astype(numpy.float32)[:,3:-1]
 	train_target=train_data.astype(numpy.float32)[:,2]
 
 	#print(train_target[1])
-   	learner=linear_model.LogisticRegression()
-   	learner.fit(train_features, train_target)
-   	train_features = None
+	learner=linear_model.LogisticRegression()
+	learner.fit(train_features, train_target)
+	train_features = None
 	train_target = None
 
-   	print("training finish!")
+	print("training finish!")
 
-   	#test_data_f = args.data_path + "a_a_list_test_feature.txt"
-   	test_data_f = args.data_path + "test_feature.txt"
-   	test_data = load_data(test_data_f, args.embed_d + 3, test_num)
-   	test_id = test_data.astype(numpy.int32)[:,0:2]
-   	test_features = test_data.astype(numpy.float32)[:,3:-1]
+	#test_data_f = args.data_path + "a_a_list_test_feature.txt"
+	test_data_f = "test_feature.txt"
+	test_data = load_data(args.data_path + test_data_f, args.embed_d + 3, test_num)
+	test_id = test_data.astype(numpy.int32)[:,0:2]
+	test_features = test_data.astype(numpy.float32)[:,3:-1]
 	test_target = test_data.astype(numpy.float32)[:,2]
 	test_predict = learner.predict(test_features)
 	test_features = None
 
 	print("test prediction finish!")
 
-	output_f = open(args.data_path + "link_prediction.txt", "w")
+	output_f = open("link_prediction.txt", "w")
 	for i in range(len(test_predict)):
-	    output_f.write('%d, %d, %lf\n'%(test_id[i][0], test_id[i][1], test_predict[i]));
+		output_f.write('%d, %d, %lf\n'%(test_id[i][0], test_id[i][1], test_predict[i]));
 	output_f.close();
 
 	AUC_score = Metric.roc_auc_score(test_target, test_predict)

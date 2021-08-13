@@ -348,7 +348,7 @@ class input_data(object):
 
 
 
-#input_data_class = input_data(args = args)
+input_data_class = input_data(args = args)
 
 
 #input_data_class.gen_het_rand_walk()
@@ -357,13 +357,13 @@ class input_data(object):
 #input_data_class.gen_meta_rand_walk_APVPA()
 
 
-#input_data_class.a_a_collaborate_train_test() #set author-author collaboration data 
+# input_data_class.a_a_collaborate_train_test() #set author-author collaboration data 
 
 
-#input_data_class.a_p_citation_train_test() #set author-paper citation data 
+# input_data_class.a_p_citation_train_test() #set author-paper citation data 
 
 
-#input_data_class.a_v_train_test() #generate author-venue data 
+input_data_class.a_v_train_test() #generate author-venue data 
 
 
 
