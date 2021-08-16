@@ -78,8 +78,8 @@ class model_class(object):
 		train_generator = torch_data.DataLoader(train_set, batch_size=200)
 
 		relation_f_test = []
-		validation_set = data.FB15KDataset(self.args.data_path, relation_f_test)
-		validation_generator = torch_data.DataLoader(validation_set, batch_size=200)
+		# validation_set = data.FB15KDataset(self.args.data_path, relation_f_test)
+		# validation_generator = torch_data.DataLoader(validation_set, batch_size=200)
 		for iter_i in range(self.args.train_iter_n):
 			avg_loss = 0
 			print ('iteration ' + str(iter_i) + ' ...')
@@ -101,15 +101,49 @@ class model_class(object):
 				head_out = torch.zeros([5, mini_batch_s, embed_d])
 				tail_out = torch.zeros([5, mini_batch_s, embed_d])
 				# n_out = torch.zeros([5, mini_batch_s, embed_d])
-				triple_list = np.array(triple_list)
-
-				for triple_index in range(5):
+				triple_list =torch.LongTensor(triple_list)
+				# print("triple_list", triple_list)
+				# print("triple_list size", triple_list.size())
+				for triple_index in range(4):
 					#positive samples
-					triple_list_temp = torch.LongTensor(triple_list[:, triple_index, :]) #batch, triple_index, 3
+					triple_list_temp = torch.clone(triple_list[:, triple_index, :]) #batch, triple_index, 3
+					triple_list_temp_neg = torch.clone(triple_list[:, triple_index, :]) #batch, triple_index, 3
 					# triple_list_batch = triple_list_temp[k * mini_batch_s : (k + 1) * mini_batch_s]
+					if (triple_list_temp[-1,0] ==99999):
+						continue
 					
-					loss, pd, nd = self.model(triple_list_temp, triple_index)
+					head_or_tail = torch.randint(high=2, size=(triple_list_temp_neg.size()[0], ))
+					if (triple_index == 0):
+						random_entities_h = torch.randint(high=self.args.A_n, size=(triple_list_temp_neg.size()[0], ))
+						random_entities_t = torch.randint(high=self.args.P_n, size=(triple_list_temp_neg.size()[0], ))
+					elif (triple_index == 1):
+						random_entities_h = torch.randint(high=self.args.P_n, size=(triple_list_temp_neg.size()[0], ))
+						random_entities_t = torch.randint(high=self.args.A_n, size=(triple_list_temp_neg.size()[0], ))
+					elif (triple_index == 2):
+						random_entities_h = torch.randint(high=self.args.P_n, size=(triple_list_temp_neg.size()[0], ))
+						random_entities_t = torch.randint(high=self.args.P_n, size=(triple_list_temp_neg.size()[0], ))
+					elif (triple_index == 3):
+						random_entities_h = torch.randint(high=self.args.V_n, size=(triple_list_temp_neg.size()[0], ))
+						random_entities_t = torch.randint(high=self.args.P_n, size=(triple_list_temp_neg.size()[0], ))            
+					
+					# print("h_t: ", head_or_tail)
+					# print("random_entities_h: ", random_entities_h)
+					# print("triple_list_temp_neg[:,0]: ", triple_list_temp_neg[:,0])
+					broken_heads = torch.where(head_or_tail == 1, random_entities_h, triple_list_temp_neg[:,0])
+            
+					broken_tails = torch.where(head_or_tail == 0, random_entities_t, triple_list_temp_neg[:,2])
 
+					# print("broken_heads", broken_heads)
+					triple_list_temp_neg[:,0] = broken_heads
+					triple_list_temp_neg[:,2] = broken_tails
+					# print("triple_list_temp_pos ", triple_list_temp)
+					# print("triple_list_temp_neg ", triple_list_temp_neg)
+
+		
+					loss, pd, nd = self.model(triple_list_temp, triple_list_temp_neg, triple_index)
+					# print("loss", loss)
+					# print("pd", pd)
+					# print("nd", nd)
 				# 	head_out[triple_index] = c_out_temp
 				# 	tail_out[triple_index] = p_out_temp
 				# 	n_out[triple_index] = n_out_temp
@@ -131,10 +165,10 @@ class model_class(object):
 			if avg_loss < best_loss:
 				best_loss = avg_loss
 				print("save model!!")
-				torch.save(self.model.state_dict(), self.args.model_path + "HetGNN_att_" + str(iter_i) + ".pt")
+				torch.save(self.model.state_dict(), self.args.model_path + "HetGNN_att_transE_" + str(iter_i) + ".pt")
 				# save embeddings for evaluation
-				triple_index = 9 
-				a_out, p_out, v_out = self.model([], triple_index)
+				# triple_index = 9 
+				# a_out, p_out, v_out = self.model([], [], triple_index)
 			print ('iteration ' + str(iter_i) + ' finish.')
 
 

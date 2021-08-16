@@ -41,26 +41,38 @@ class FB15KDataset(data.Dataset):
         for i in range(len(relation_f)):
             f_name = relation_f[i]
             neigh_f = open(data_path + f_name, "r")
-            for line in neigh_f:    
+            sub_data_r = [] # data with same relation type r 
+            for line in neigh_f:   
                 line = line.strip()
                 node_id = int(re.split(':', line)[0])
                 neigh_list = re.split(':', line)[1]
                 neigh_list_id = re.split(',', neigh_list)
-                self.data.append([[node_id, i, int(neigh_id)] for neigh_id in neigh_list_id])
-
+                for neigh_id in neigh_list_id:
+                    sub_data_r.append([node_id, i, int(neigh_id)])
+            
+            self.data.append(sub_data_r)
+        
+        print('length: ', len(self.data))
+        # print(self.data[3])
+        
     def __len__(self):
         """Denotes the total number of samples."""
         return len(self.data[0])
 
     def __getitem__(self, index):
         """Returns (head id, relation id, tail id)."""
-        x = torch.zeros([len(self.data), 3])
+        # x = torch.zeros([len(self.data), 3])
+        x = []
         for i in range(len(self.data)): #5
-            x[i] = torch.FloatTensor(self.data[i][index])
+            # print("data_index", self.data[i][index])
+            try:
+                x.append(self.data[i][index])
+            except:
+                x.append([99999,99999,99999])
         # head_id = self._to_idx(head, self.entity2id)
         # relation_id = self._to_idx(relation, self.relation2id)
         # tail_id = self._to_idx(tail, self.entity2id)
-        return x
+        return torch.LongTensor(x)
 
     @staticmethod
     def _to_idx(key: str, mapping: Mapping) -> int:

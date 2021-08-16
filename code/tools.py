@@ -170,7 +170,7 @@ class HetAgg(nn.Module):
 
 	def node_neigh_agg(self, id_batch, node_type): #type based neighbor aggregation with rnn 
 		embed_d = self.embed_d
-		print("node_neigh_agg_id_batch: ", id_batch)
+		# print("node_neigh_agg_id_batch: ", id_batch)
 
 		if node_type == 1 or node_type == 2:
 			batch_s = int(len(id_batch[0]) / 10)
@@ -196,7 +196,7 @@ class HetAgg(nn.Module):
 
 
 	def node_het_agg(self, id_batch, node_type): #heterogeneous neighbor aggregation
-		print("node_het_agg_id_batch: ", len(id_batch))
+		# print("node_het_agg_id_batch: ", len(id_batch))
 		a_neigh_batch = [[0] * 10] * len(id_batch)
 		p_neigh_batch = [[0] * 10] * len(id_batch)
 		v_neigh_batch = [[0] * 3] * len(id_batch)
@@ -258,46 +258,46 @@ class HetAgg(nn.Module):
 		return weight_agg_batch
 
 
-	def het_agg(self, triple_index, c_id_batch, pos_id_batch, neg_id_batch):
+	def het_agg(self, triple_index, c_id_batch, pos_id_batch):
 		embed_d = self.embed_d
 		# batch processing
 		# nine cases for academic data (author, paper, venue)
 		if triple_index == 0: # change to relation type (5)
 			c_agg = self.a_content_agg([c_id_batch])
-			p_agg = self.a_content_agg([pos_id_batch])
-			n_agg = self.a_content_agg([neg_id_batch])
-		elif triple_index == 1:
-			c_agg = self.a_content_agg([c_id_batch])
 			p_agg = self.p_content_agg([pos_id_batch])
-			n_agg = self.p_content_agg([neg_id_batch])
-		elif triple_index == 2:
-			c_agg = self.a_content_agg([c_id_batch])
-			p_agg = self.v_content_agg([pos_id_batch])
-			n_agg = self.v_content_agg([neg_id_batch])
-		elif triple_index == 3:
+			# n_agg = self.a_content_agg([neg_id_batch])
+		elif triple_index == 1:
 			c_agg = self.p_content_agg([c_id_batch])
 			p_agg = self.a_content_agg([pos_id_batch])
-			n_agg = self.a_content_agg([neg_id_batch])
+			# n_agg = self.p_content_agg([neg_id_batch])
+		elif triple_index == 2:
+			c_agg = self.p_content_agg([c_id_batch])
+			p_agg = self.p_content_agg([pos_id_batch])
+			# n_agg = self.v_content_agg([neg_id_batch])
+		elif triple_index == 3:
+			c_agg = self.v_content_agg([c_id_batch])
+			p_agg = self.p_content_agg([pos_id_batch])
+			# n_agg = self.a_content_agg([neg_id_batch])
 		elif triple_index == 4:
 			c_agg = self.p_content_agg([c_id_batch])
 			p_agg = self.p_content_agg([pos_id_batch])
-			n_agg = self.p_content_agg([neg_id_batch])	
+			# n_agg = self.p_content_agg([neg_id_batch])	
 		elif triple_index == 5:
 			c_agg = self.p_content_agg([c_id_batch])
 			p_agg = self.v_content_agg([pos_id_batch])
-			n_agg = self.v_content_agg([neg_id_batch])	
+			# n_agg = self.v_content_agg([neg_id_batch])	
 		elif triple_index == 6:
 			c_agg = self.v_content_agg([c_id_batch])
 			p_agg = self.a_content_agg([pos_id_batch])
-			n_agg = self.a_content_agg([neg_id_batch])		
+			# n_agg = self.a_content_agg([neg_id_batch])		
 		elif triple_index == 7:
 			c_agg = self.v_content_agg([c_id_batch])
 			p_agg = self.p_content_agg([pos_id_batch])
-			n_agg = self.p_content_agg([neg_id_batch])	
+			# n_agg = self.p_content_agg([neg_id_batch])	
 		elif triple_index == 8:
 			c_agg = self.v_content_agg([c_id_batch])
 			p_agg = self.v_content_agg([pos_id_batch])
-			n_agg = self.v_content_agg([neg_id_batch])
+			# n_agg = self.v_content_agg([neg_id_batch])
 		elif triple_index == 9: #save learned node embedding
 			embed_file = open(self.args.data_path + "node_embedding4_transE.txt", "w")
 			save_batch_s = self.args.mini_batch_s
@@ -355,17 +355,18 @@ class HetAgg(nn.Module):
 			embed_file.close()
 			return [], [], []
 
-		return c_agg, p_agg, n_agg
+		return c_agg, p_agg
 
 
 	def aggregate_all(self, triple_list_batch, triple_index):
-		c_id_batch = [x[0] for x in triple_list_batch]
-		pos_id_batch = [x[2] for x in triple_list_batch]
+		c_id_batch = [x[0].item() for x in triple_list_batch]
+		pos_id_batch = [x[2].item() for x in triple_list_batch]
 		# neg_id_batch = [x[2] for x in triple_list_batch]
+		# print(pos_id_batch)
 
-		c_agg, pos_agg, neg_agg = self.het_agg(triple_index, c_id_batch, pos_id_batch, neg_id_batch)
+		c_agg, pos_agg = self.het_agg(triple_index, c_id_batch, pos_id_batch)
 
-		return c_agg, pos_agg, neg_agg
+		return c_agg, pos_agg
 
 
 	
@@ -379,14 +380,16 @@ class HetAgg(nn.Module):
 		relations_emb.weight.data[:-1, :].div_(relations_emb.weight.data[:-1, :].norm(p=1, dim=1, keepdim=True))
 		return relations_emb
 
-	def forward(self, triple_list_batch, triple_index):
-		c_out, p_out, n_out = self.aggregate_all(triple_list_batch, triple_index)
+	def forward(self, triple_list_batch, triple_list_batch_neg, triple_index):
+		# print("triple_list_batch", triple_list_batch)
+		c_out, p_out= self.aggregate_all(triple_list_batch, triple_index)
+		c_out_neg, p_out_neg= self.aggregate_all(triple_list_batch_neg, triple_index)
 		
 		# assert positive_triplets.size()[1] == 3
 		positive_distances = self._distance(c_out, triple_list_batch[:, 1], p_out)
 
 		# assert negative_triplets.size()[1] == 3
-		negative_distances = self._distance(c_out, triple_list_batch[:, 1], p_out)
+		negative_distances = self._distance(c_out_neg, triple_list_batch_neg[:, 1], p_out_neg)
 
 		return self.loss(positive_distances, negative_distances), positive_distances, negative_distances		
 		# return c_out, p_out, n_out
